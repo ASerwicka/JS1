@@ -10,6 +10,8 @@ DEPENDENCY = 'Ogółem'
 class Gui(Tk):
     def __init__(self):
         super().__init__()
+        self.scrollbar = ttk.Scrollbar()
+        self.tree = ttk.Treeview()
         self.Data = data.Data()
         # data from csv file
         self.data = self.Data.get_file()
@@ -38,9 +40,16 @@ class Gui(Tk):
         self.bottom_frame.pack(fill=BOTH, expand=YES, side=BOTTOM)
         self.bottom_frame.pack_propagate(False)
 
+        button = Button(self.up_left_frame, text="Reset", command=self.reset_action)
+        button.pack(fill=X, side=BOTTOM)
+
+    def reset_action(self):
+        self.view_data(None)
+
     def retrieve(self):
         self.chosen_education = self.combo_edu.get()
         self.chosen_dependency = self.combo_dep.get()
+        self.get_data_to_display()
 
     def create_combobox_education(self):
         temp = self.labels[1:]
@@ -86,27 +95,30 @@ class Gui(Tk):
 
     # require pandas dataframe
     def view_data(self, dataframe):
+        print("*")
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
         else:
             self.local_labels = self.labels
             self.local_data = self.data
-        tree = ttk.Treeview(self.bottom_frame, columns=self.local_labels, show='headings', selectmode='browse')
-        scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=tree.yview)
-        scrollbar.pack(side='right', fill='y')
-        tree.configure(yscrollcommand=scrollbar.set)
+        self.tree.destroy()
+        self.scrollbar.destroy()
+        self.tree = ttk.Treeview(self.bottom_frame, columns=self.local_labels, show='headings', selectmode='browse')
+        self.scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=self.tree.yview)
+        self.scrollbar.pack(side='right', fill='y')
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
 
         count = 0
         for label in self.local_labels:
-            tree.column(count, anchor=CENTER, width=110)
-            tree.heading(count, text=label)
+            self.tree.column(count, anchor=CENTER, width=110)
+            self.tree.heading(count, text=label)
             count = count + 1
 
         for line in self.local_data:
-            tree.insert('', 'end', values=line)
+            self.tree.insert('', 'end', values=line)
 
-        tree.pack(expand=True, fill=BOTH)
+        self.tree.pack(expand=True, fill=BOTH)
 
     def view_graph(self):
         picture_frame = LabelFrame(self.up_right_frame, bg="blue", height=250, width=250)
