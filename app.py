@@ -2,9 +2,16 @@ from tkinter import ttk
 from tkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
+import pandas as pd
 
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
+WYZSZE = 0
+POLICEALNE = 1
+SREDNIE = 2
+ZAWODOWE = 3
+GIMNAZJALNE = 4
+PODSTAWOWE = 5
 
 
 class Gui(Tk):
@@ -53,7 +60,7 @@ class Gui(Tk):
 
     def create_combobox_education(self):
         temp = self.labels[1:]
-        temp.append('Wszystkie',)
+        temp.append('Wszystkie', )
         self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp)
         self.combo_edu.set("Pick an education")
         self.combo_edu.pack(fill=X)
@@ -68,11 +75,38 @@ class Gui(Tk):
     def get_data_to_display(self):
         if self.chosen_dependency is None and self.chosen_education is None:
             self.view_data(None)
-        elif self.chosen_dependency.__eq__('Ogółem') and self.chosen_education.__eq__('Wszystkie'):
-            self.view_data(self.Data.get_general_data())
+
+        elif self.chosen_dependency.__eq__('Ogółem'):
+
+            if self.chosen_education.__eq__('Wszystkie'):
+                self.view_data(self.Data.get_general_data())
+
+            elif self.chosen_education.__eq__('Ogółem'):
+                self.view_data(pd.DataFrame([("Ogółem", 32679614)],
+                                            columns=['Wykształcenie', 'Liczba']))
+
+            elif self.chosen_education.__eq__('Podstawowe'):
+                self.view_data(self.Data.get_general_data().iloc[[PODSTAWOWE]])
+
+            elif self.chosen_education.__eq__('Średnie'):
+                self.view_data(self.Data.get_general_data().iloc[[SREDNIE]])
+
+            elif self.chosen_education.__eq__('Policealne'):
+                self.view_data(self.Data.get_general_data().iloc[[POLICEALNE]])
+
+            elif self.chosen_education.__eq__('Zasadnicze zawodowe'):
+                self.view_data(self.Data.get_general_data().iloc[[ZAWODOWE]])
+
+            elif self.chosen_education.__eq__('Gimnazjalne'):
+                self.view_data(self.Data.get_general_data().iloc[[GIMNAZJALNE]])
+
+            elif self.chosen_education.__eq__('Wyższe'):
+                self.view_data(self.Data.get_general_data().iloc[[WYZSZE]])
+
         elif self.chosen_dependency.__eq__('Wiek'):
+
             if self.chosen_education.__eq__('Ogółem'):
-                #TODO
+                # TODO
                 self.view_data(None)
             elif self.chosen_education.__eq__('Podstawowe'):
                 # TODO
