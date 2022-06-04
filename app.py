@@ -100,6 +100,7 @@ class Gui(Tk):
 
             elif self.chosen_dependency.__eq__('Wiek'):
                 self.view_data(self.Data.get_age_data_arg(self.chosen_education))
+                self.view_graph(self.Data.get_age_diagram_arg(self.chosen_education))
         else:
             if self.chosen_dependency.__eq__('Ogółem'):
                 self.view_data(self.Data.get_general_data_sex_arg(self.chosen_education))
@@ -108,6 +109,8 @@ class Gui(Tk):
 
             elif self.chosen_dependency.__eq__('Wiek'):
                 self.view_data(self.Data.get_age_data_sex_arg(self.chosen_education))
+                if self.Data.get_age_sex_diagram_arg(self.chosen_education) is not None:
+                    self.view_graph(self.Data.get_age_sex_diagram_arg(self.chosen_education))
 
     # require pandas dataframe
     def view_data(self, dataframe):

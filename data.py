@@ -1,3 +1,4 @@
+import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -230,11 +231,10 @@ class Data:
 
     def get_general_sex_diagram_arg(self, arg):
         if arg.__eq__('Wszystkie'):
-            return self.general_sex_diagram()
+            return self.general_sex_diagram_edu()
 
         elif arg.__eq__('Ogółem'):
-            # TODO
-            return 0
+            return self.general_sex_diagram()
 
         elif arg.__eq__('Podstawowe'):
             return self.create_sex_diagram(PODSTAWOWE)
@@ -254,6 +254,56 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.create_sex_diagram(WYZSZE)
 
+    def get_age_diagram_arg(self, arg):
+        if arg.__eq__('Wszystkie'):
+            return self.age_general_diagram()
+
+        elif arg.__eq__('Ogółem'):
+            return self.create_age_diagram('Ogółem')
+
+        elif arg.__eq__('Podstawowe'):
+            return self.create_age_diagram('Podstawowe')
+
+        elif arg.__eq__('Średnie'):
+            return self.create_age_diagram('Średnie')
+
+        elif arg.__eq__('Policealne'):
+            return self.create_age_diagram('Policealne')
+
+        elif arg.__eq__('Zasadnicze zawodowe'):
+            return self.create_age_diagram('Zasadnicze zawodowe')
+
+        elif arg.__eq__('Gimnazjalne'):
+            return self.create_age_diagram('Gimnazjalne')
+
+        elif arg.__eq__('Wyższe'):
+            return self.create_age_diagram('Wyższe')
+
+    def get_age_sex_diagram_arg(self, arg):
+        if arg.__eq__('Wszystkie'):
+            return None
+
+        elif arg.__eq__('Ogółem'):
+            return self.create_age_sex_diagram('Ogółem')
+
+        elif arg.__eq__('Podstawowe'):
+            return self.create_age_sex_diagram('Podstawowe')
+
+        elif arg.__eq__('Średnie'):
+            return self.create_age_sex_diagram('Średnie')
+
+        elif arg.__eq__('Policealne'):
+            return self.create_age_sex_diagram('Policealne')
+
+        elif arg.__eq__('Zasadnicze zawodowe'):
+            return self.create_age_sex_diagram('Zasadnicze zawodowe')
+
+        elif arg.__eq__('Gimnazjalne'):
+            return self.create_age_sex_diagram('Gimnazjalne')
+
+        elif arg.__eq__('Wyższe'):
+            return self.create_age_sex_diagram('Wyższe')
+
     def general_diagram(self):
         general_data_as_table = self.get_general_data()
         values = general_data_as_table['Liczba'].to_numpy()
@@ -267,7 +317,7 @@ class Data:
         plt.show()
         return fig
 
-    def general_sex_diagram(self):
+    def general_sex_diagram_edu(self):
         general_data_as_table_women = self.get_general_data_women()
         general_data_as_table_men = self.get_general_data_men()
         value_men = general_data_as_table_men['Liczba'].to_numpy()
@@ -296,6 +346,57 @@ class Data:
 
         plt.bar(["Mężczyźni", "Kobiety"], values)
         ax.yaxis.set_major_formatter(format_number)
+        plt.show()
+        return fig
+
+    def general_sex_diagram(self):
+        values = [int(self.data.iloc[[72]]["Ogółem"]), int(self.data.iloc[[144]]["Ogółem"])]
+
+        fig, ax = plt.subplots(figsize=(13, 6))
+
+        #TODO switch men and women
+        plt.bar(["Mężczyźni", "Kobiety"], values)
+        ax.yaxis.set_major_formatter(format_number)
+        plt.show()
+        return fig
+
+    def create_age_diagram(self, arg):
+        font = {'size': 6.5}
+        matplotlib.rc('font', **font)
+        labels = self.age_data['Wiek']
+        values = self.age_data[arg].to_numpy()
+
+        fig, ax = plt.subplots(figsize=(20, 5))
+
+        plt.bar(labels, values, color='purple')
+        ax.yaxis.set_major_formatter(format_number)
+        plt.show()
+        return fig
+
+    def age_general_diagram(self):
+        font = {'size': 6.5}
+        matplotlib.rc('font', **font)
+        fig, ax = plt.subplots(figsize=(20, 5))
+
+        plt.plot(self.age_data['Wiek'], self.age_data['Podstawowe'], c='#8a134e', label='Podstawowe')
+        plt.plot(self.age_data['Wiek'], self.age_data['Gimnazjalne'], c='#00c3ff', label='Gimnazjalne')
+        plt.plot(self.age_data['Wiek'], self.age_data['Średnie'], c='#FF0000', label='Średnie')
+        plt.plot(self.age_data['Wiek'], self.age_data['Zasadnicze zawodowe'], c='#0101DF', label='Zasadnicze zawodowe')
+        plt.plot(self.age_data['Wiek'], self.age_data['Wyższe'], c='#74DF00', label='Wyższe')
+        ax.yaxis.set_major_formatter(format_number)
+        plt.legend()
+        plt.show()
+        return fig
+
+    def create_age_sex_diagram(self, arg):
+        font = {'size': 6.5}
+        matplotlib.rc('font', **font)
+        fig, ax = plt.subplots(figsize=(20, 5))
+
+        plt.plot(self.age_data_men['Wiek'], self.age_data_men[arg], c='#8a134e', label='Mężczyźni')
+        plt.plot(self.age_data_women['Wiek'], self.age_data_women[arg], c='#00c3ff', label='Kobiety')
+        ax.yaxis.set_major_formatter(format_number)
+        plt.legend()
         plt.show()
         return fig
 
