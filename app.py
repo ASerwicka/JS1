@@ -6,12 +6,7 @@ import pandas as pd
 
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
-WYZSZE = 0
-POLICEALNE = 1
-SREDNIE = 2
-ZAWODOWE = 3
-GIMNAZJALNE = 4
-PODSTAWOWE = 5
+
 
 
 class Gui(Tk):
@@ -77,59 +72,13 @@ class Gui(Tk):
             self.view_data(None)
 
         elif self.chosen_dependency.__eq__('Ogółem'):
-
-            if self.chosen_education.__eq__('Wszystkie'):
-                self.view_data(self.Data.get_general_data())
-
-            elif self.chosen_education.__eq__('Ogółem'):
-                self.view_data(pd.DataFrame([("Ogółem", 32679614)],
-                                            columns=['Wykształcenie', 'Liczba']))
-
-            elif self.chosen_education.__eq__('Podstawowe'):
-                self.view_data(self.Data.get_general_data().iloc[[PODSTAWOWE]])
-
-            elif self.chosen_education.__eq__('Średnie'):
-                self.view_data(self.Data.get_general_data().iloc[[SREDNIE]])
-
-            elif self.chosen_education.__eq__('Policealne'):
-                self.view_data(self.Data.get_general_data().iloc[[POLICEALNE]])
-
-            elif self.chosen_education.__eq__('Zasadnicze zawodowe'):
-                self.view_data(self.Data.get_general_data().iloc[[ZAWODOWE]])
-
-            elif self.chosen_education.__eq__('Gimnazjalne'):
-                self.view_data(self.Data.get_general_data().iloc[[GIMNAZJALNE]])
-
-            elif self.chosen_education.__eq__('Wyższe'):
-                self.view_data(self.Data.get_general_data().iloc[[WYZSZE]])
+            self.view_data(self.Data.get_general_data_arg(self.chosen_education))
 
         elif self.chosen_dependency.__eq__('Wiek'):
-
-            if self.chosen_education.__eq__('Ogółem'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Podstawowe'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Średnie'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Policealne'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Zasadnicze zawodowe'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Gimnazjalne'):
-                # TODO
-                self.view_data(None)
-            elif self.chosen_education.__eq__('Wyższe'):
-                # TODO
-                self.view_data(None)
+            self.view_data(self.Data.get_age_data_arg(self.chosen_education))
 
     # require pandas dataframe
     def view_data(self, dataframe):
-        print("*")
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
