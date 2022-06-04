@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -44,7 +45,6 @@ class Data:
         self.age_data = self.data.iloc[1:71]
         self.age_data_men = self.data.iloc[73:143]
         self.age_data_women = self.data.iloc[145:215]
-        print(self.labels)
 
     def get_labels(self):
         return self.labels
@@ -222,15 +222,85 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.get_general_data().iloc[[WYZSZE]]
 
-    def education_general_diagram(self):
+    def get_general_diagram_arg(self, arg):
+        if arg.__eq__('Wszystkie'):
+            return self.general_diagram()
+        else:
+            return None
+
+    def get_general_sex_diagram_arg(self, arg):
+        if arg.__eq__('Wszystkie'):
+            return self.general_sex_diagram()
+
+        elif arg.__eq__('Ogółem'):
+            # TODO
+            return 0
+
+        elif arg.__eq__('Podstawowe'):
+            return self.create_sex_diagram(PODSTAWOWE)
+
+        elif arg.__eq__('Średnie'):
+            return self.create_sex_diagram(SREDNIE)
+
+        elif arg.__eq__('Policealne'):
+            return self.create_sex_diagram(POLICEALNE)
+
+        elif arg.__eq__('Zasadnicze zawodowe'):
+            return self.create_sex_diagram(ZAWODOWE)
+
+        elif arg.__eq__('Gimnazjalne'):
+            return self.create_sex_diagram(GIMNAZJALNE)
+
+        elif arg.__eq__('Wyższe'):
+            return self.create_sex_diagram(WYZSZE)
+
+    def general_diagram(self):
         general_data_as_table = self.get_general_data()
         values = general_data_as_table['Liczba'].to_numpy()
 
-        fig, ax = plt.subplots(figsize=(9, 6))
+        fig, ax = plt.subplots(figsize=(13, 6))
 
         plt.bar(self.data_labels, values, color='purple', )
         ax.yaxis.set_major_formatter(format_number)
 
         plt.title('Ogólne wykształcenie')
         plt.show()
-        return fig, ax
+        return fig
+
+    def general_sex_diagram(self):
+        general_data_as_table_women = self.get_general_data_women()
+        general_data_as_table_men = self.get_general_data_men()
+        value_men = general_data_as_table_men['Liczba'].to_numpy()
+        value_women = general_data_as_table_women['Liczba'].to_numpy()
+
+        fig, ax = plt.subplots(figsize=(13, 6))
+        index = np.arange(len(self.data_labels))
+        width = 0.4
+
+        plt.bar(index - width / 2, value_men, width, label='men')
+        plt.bar(index + width / 2, value_women, width, label='women')
+        plt.xticks(index, self.data_labels)
+        ax.yaxis.set_major_formatter(format_number)
+        plt.title('Wykształcenie względem płci')
+        plt.legend()
+        plt.show()
+        return fig
+
+    def create_sex_diagram(self, arg):
+        general_data_as_table_women = self.get_general_data_women()
+        general_data_as_table_men = self.get_general_data_men()
+        values = [int(general_data_as_table_men.iloc[[arg]]['Liczba']),
+                  int(general_data_as_table_women.iloc[[arg]]['Liczba'])]
+
+        fig, ax = plt.subplots(figsize=(13, 6))
+
+        plt.bar(["Mężczyźni", "Kobiety"], values)
+        ax.yaxis.set_major_formatter(format_number)
+        plt.show()
+        return fig
+
+
+if __name__ == '__main__':
+    #data = Data()
+    #data.create_sex_diagram(2)
+    pass

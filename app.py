@@ -3,24 +3,25 @@ from tkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
 
-
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
 
-#TODO sortowanie 4
-#TODO grafy 2
-#TODO pasek stanu 5
-#TODO menu 6
-#TODO zapisywanie logów 7
-#TODO zapisywanie preferowanego położenia okna 8
-#TODO grafy z podziałem na płeć 3
-#TODO ładne gui 9
 
+# TODO sortowanie 4
+# TODO grafy 2
+# TODO pasek stanu 5
+# TODO menu 6
+# TODO zapisywanie logów 7
+# TODO zapisywanie preferowanego położenia okna 8
+# TODO grafy z podziałem na płeć 3
+# TODO ładne gui 9
 
 
 class Gui(Tk):
     def __init__(self):
         super().__init__()
+        self.canvas = FigureCanvasTkAgg()
+        self.picture_frame = LabelFrame()
         self.Var = None
         self.check_button = None
         self.sex = 0
@@ -59,6 +60,7 @@ class Gui(Tk):
 
     def reset_action(self):
         self.view_data(None)
+        self.picture_frame.destroy()
 
     def retrieve(self):
         self.chosen_education = self.combo_edu.get()
@@ -86,18 +88,23 @@ class Gui(Tk):
         button.pack(fill=X)
 
     def get_data_to_display(self):
+        self.picture_frame.destroy()
         if self.chosen_dependency is None and self.chosen_education is None:
             self.view_data(None)
 
         elif self.sex.__eq__(0):
             if self.chosen_dependency.__eq__('Ogółem'):
                 self.view_data(self.Data.get_general_data_arg(self.chosen_education))
+                if self.Data.get_general_diagram_arg(self.chosen_education) is not None:
+                    self.view_graph(self.Data.get_general_diagram_arg(self.chosen_education))
 
             elif self.chosen_dependency.__eq__('Wiek'):
                 self.view_data(self.Data.get_age_data_arg(self.chosen_education))
         else:
             if self.chosen_dependency.__eq__('Ogółem'):
                 self.view_data(self.Data.get_general_data_sex_arg(self.chosen_education))
+                if self.Data.get_general_sex_diagram_arg(self.chosen_education) is not None:
+                    self.view_graph(self.Data.get_general_sex_diagram_arg(self.chosen_education))
 
             elif self.chosen_dependency.__eq__('Wiek'):
                 self.view_data(self.Data.get_age_data_sex_arg(self.chosen_education))
@@ -131,17 +138,17 @@ class Gui(Tk):
 
         self.tree.pack(expand=True, fill=BOTH)
 
-    def view_graph(self):
-        picture_frame = LabelFrame(self.up_right_frame, bg="blue", height=250, width=250)
-        picture_frame.pack(side=TOP, expand=False)
+    def view_graph(self, figure):
+        self.picture_frame = LabelFrame(self.up_right_frame, height=250, width=250)
+        self.picture_frame.pack(side=TOP)
 
-        sizegrip = ttk.Sizegrip(picture_frame)
-        sizegrip.pack(side="right", anchor=SW)
+        # TODO check if it possible to change size of one frame despite other frames
+        #sizegrip = ttk.Sizegrip(self.picture_frame)
+        #sizegrip.pack(side="right", anchor=SW)
 
-        figure, ax = self.Data.education_general_diagram()
-        canvas = FigureCanvasTkAgg(figure, picture_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        self.canvas = FigureCanvasTkAgg(figure, self.picture_frame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
 
 
 if __name__ == '__main__':
