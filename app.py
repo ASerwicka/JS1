@@ -2,16 +2,28 @@ from tkinter import ttk
 from tkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
-import pandas as pd
+
 
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
+
+#TODO sortowanie 4
+#TODO grafy 2
+#TODO pasek stanu 5
+#TODO menu 6
+#TODO zapisywanie logów 7
+#TODO zapisywanie preferowanego położenia okna 8
+#TODO grafy z podziałem na płeć 3
+#TODO ładne gui 9
 
 
 
 class Gui(Tk):
     def __init__(self):
         super().__init__()
+        self.Var = None
+        self.check_button = None
+        self.sex = 0
         self.scrollbar = ttk.Scrollbar()
         self.tree = ttk.Treeview()
         self.Data = data.Data()
@@ -51,9 +63,10 @@ class Gui(Tk):
     def retrieve(self):
         self.chosen_education = self.combo_edu.get()
         self.chosen_dependency = self.combo_dep.get()
+        self.sex = self.Var.get()
         self.get_data_to_display()
 
-    def create_combobox_education(self):
+    def create_options(self):
         temp = self.labels[1:]
         temp.append('Wszystkie', )
         self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp)
@@ -64,6 +77,11 @@ class Gui(Tk):
         self.combo_dep.set("Pick a dependency")
         self.combo_dep.pack(fill=X)
 
+        self.Var = IntVar()
+
+        self.check_button = Checkbutton(self.up_left_frame, text="Z podziałem na płeć", variable=self.Var)
+        self.check_button.pack(fill=X)
+
         button = Button(self.up_left_frame, text="Submit", command=self.retrieve)
         button.pack(fill=X)
 
@@ -71,11 +89,18 @@ class Gui(Tk):
         if self.chosen_dependency is None and self.chosen_education is None:
             self.view_data(None)
 
-        elif self.chosen_dependency.__eq__('Ogółem'):
-            self.view_data(self.Data.get_general_data_arg(self.chosen_education))
+        elif self.sex.__eq__(0):
+            if self.chosen_dependency.__eq__('Ogółem'):
+                self.view_data(self.Data.get_general_data_arg(self.chosen_education))
 
-        elif self.chosen_dependency.__eq__('Wiek'):
-            self.view_data(self.Data.get_age_data_arg(self.chosen_education))
+            elif self.chosen_dependency.__eq__('Wiek'):
+                self.view_data(self.Data.get_age_data_arg(self.chosen_education))
+        else:
+            if self.chosen_dependency.__eq__('Ogółem'):
+                self.view_data(self.Data.get_general_data_sex_arg(self.chosen_education))
+
+            elif self.chosen_dependency.__eq__('Wiek'):
+                self.view_data(self.Data.get_age_data_sex_arg(self.chosen_education))
 
     # require pandas dataframe
     def view_data(self, dataframe):
@@ -94,7 +119,10 @@ class Gui(Tk):
 
         count = 0
         for label in self.local_labels:
-            self.tree.column(count, anchor=CENTER, width=110)
+            if label.__eq__("Zasadnicze zawodowe"):
+                self.tree.column(count, anchor=CENTER, width=110)
+            else:
+                self.tree.column(count, anchor=CENTER, width=80)
             self.tree.heading(count, text=label)
             count = count + 1
 
@@ -119,5 +147,5 @@ class Gui(Tk):
 if __name__ == '__main__':
     app = Gui()
     app.get_data_to_display()
-    app.create_combobox_education()
+    app.create_options()
     app.mainloop()

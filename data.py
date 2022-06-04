@@ -8,6 +8,7 @@ ZAWODOWE = 3
 GIMNAZJALNE = 4
 PODSTAWOWE = 5
 
+
 # data = pd.read_csv('Dane_2011_ogólne.csv', sep=';')
 # del data['Policealne']
 # labels
@@ -26,7 +27,7 @@ class Data:
     def __init__(self):
         # for displaying
         self.file = open("Dane_2011_ogólne.csv", encoding='utf8')
-        self.labels = self.file.readline()
+        self.labels = self.file.readline().replace('\n', '')
         self.labels = self.labels.split(';')
         temp_file = []
         for line in self.file:
@@ -41,6 +42,9 @@ class Data:
         for label in self.data_labels:
             self.data[label] = self.data[label].astype(int)
         self.age_data = self.data.iloc[1:71]
+        self.age_data_men = self.data.iloc[73:143]
+        self.age_data_women = self.data.iloc[145:215]
+        print(self.labels)
 
     def get_labels(self):
         return self.labels
@@ -77,6 +81,55 @@ class Data:
         elif arg.__eq__('Wszystkie'):
             return self.age_data
 
+    def get_age_data_sex_arg(self, arg):
+        if arg.__eq__('Ogółem'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Ogółem"],
+                                         self.age_data_men["Ogółem"])),
+                                columns=['Wiek', 'Liczba wszystkich kobiet', 'Liczba wszystkich mężczyzn'])
+        elif arg.__eq__('Podstawowe'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Podstawowe"],
+                                         self.age_data_men["Podstawowe"])),
+                                columns=['Wiek', 'Liczba kobiet z wykształceniem podstawowym',
+                                         'Liczba mężczyzn z wykształceniem podstawowym'])
+        elif arg.__eq__('Średnie'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Średnie"],
+                                         self.age_data_men["Średnie"])),
+                                columns=['Wiek', 'Liczba kobiet z wykształceniem średnim',
+                                         'Liczba mężczyzn z wykształceniem średnim'])
+        elif arg.__eq__('Policealne'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Policealne"],
+                                         self.age_data_men["Policealne"])),
+                                columns=['Wiek', 'Liczba kobiet z wykształceniem policealnym',
+                                         'Liczba mężczyzn z wykształceniem policealnym'])
+        elif arg.__eq__('Zasadnicze zawodowe'):
+            return pd.DataFrame(
+                list(zip(self.age_data["Wiek"], self.age_data_women["Zasadnicze zawodowe"],
+                         self.age_data_men["Zasadnicze zawodowe"])),
+                columns=['Wiek', 'Liczba kobiet z wykształceniem zasadniczym zawodowym',
+                         'Liczba mężczyzn z wykształceniem zasadniczym zawodowym'])
+        elif arg.__eq__('Gimnazjalne'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Gimnazjalne"],
+                                         self.age_data_men["Gimnazjalne"])),
+                                columns=['Wiek', 'Liczba kobiet z wykształceniem gimnazjalnym',
+                                         'Liczba mężczyzn z wykształceniem gimnazjalnym'])
+        elif arg.__eq__('Wyższe'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Wyższe"],
+                                         self.age_data_men["Wyższe"])),
+                                columns=['Wiek', 'Liczba kobiet z wykształceniem wyższym',
+                                         'Liczba mężczyzn z wykształceniem wyższym'])
+        elif arg.__eq__('Wszystkie'):
+            return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Ogółem"],
+                                         self.age_data_men["Ogółem"], self.age_data_women["Wyższe"],
+                                         self.age_data_men["Wyższe"], self.age_data_women["Policealne"],
+                                         self.age_data_men["Policealne"], self.age_data_women["Średnie"],
+                                         self.age_data_men["Średnie"], self.age_data_women["Zasadnicze zawodowe"],
+                                         self.age_data_men["Zasadnicze zawodowe"], self.age_data_women["Gimnazjalne"],
+                                         self.age_data_men["Gimnazjalne"], self.age_data_women["Podstawowe"],
+                                         self.age_data_men["Podstawowe"])),
+                                columns=['Wiek', 'Ogółem K', 'Ogółem M', 'Wyższe K', 'Wyższe M', 'Policealne K',
+                                         'Policealne M', 'Średnie K', 'Średnie M', 'Zawodowe K', 'Zawodowe M',
+                                         'Gimnazjalne K', 'Gimnazjalne M', 'Podstawowe K', 'Podstawowe M'])
+
     def get_general_data(self):
         general_data = self.data.iloc[[0]]
         del general_data[general_data.columns[0]]
@@ -86,13 +139,70 @@ class Data:
                                              columns=['Wykształcenie', 'Liczba'])
         return general_data_as_table
 
+    def get_general_data_men(self):
+        general_data_men = self.data.iloc[[72]]
+        del general_data_men[general_data_men.columns[0]]
+        del general_data_men[general_data_men.columns[0]]
+        general_data_men_as_table = pd.DataFrame(list(zip(general_data_men.columns, general_data_men.values[0])),
+                                                 columns=['Wykształcenie', 'Liczba'])
+        return general_data_men_as_table
+
+    def get_general_data_women(self):
+        general_data_women = self.data.iloc[[144]]
+        del general_data_women[general_data_women.columns[0]]
+        del general_data_women[general_data_women.columns[0]]
+        general_data_women_as_table = pd.DataFrame(list(zip(general_data_women.columns, general_data_women.values[0])),
+                                                   columns=['Wykształcenie', 'Liczba'])
+        return general_data_women_as_table
+
+    def get_general_data_sex_arg(self, arg):
+        if arg.__eq__('Wszystkie'):
+            return pd.DataFrame(list(
+                zip(self.get_general_data_women()["Wykształcenie"], self.get_general_data_women()["Liczba"],
+                    self.get_general_data_men()["Liczba"])),
+                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Ogółem'):
+            return pd.DataFrame([("Ogółem", 17027406, 15652208)],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Podstawowe'):
+            return pd.DataFrame([("Podstawowe", int(self.get_general_data_women().iloc[[PODSTAWOWE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[PODSTAWOWE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Średnie'):
+            return pd.DataFrame([("Srednie", int(self.get_general_data_women().iloc[[SREDNIE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[SREDNIE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Policealne'):
+            return pd.DataFrame([("Policealne", int(self.get_general_data_women().iloc[[POLICEALNE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[POLICEALNE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Zasadnicze zawodowe'):
+            return pd.DataFrame([("Zasadnicze zawodowe", int(self.get_general_data_women().iloc[[ZAWODOWE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[ZAWODOWE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Gimnazjalne'):
+            return pd.DataFrame([("Gimnazjalne", int(self.get_general_data_women().iloc[[GIMNAZJALNE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[GIMNAZJALNE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
+        elif arg.__eq__('Wyższe'):
+            return pd.DataFrame([("Wyższe", int(self.get_general_data_women().iloc[[WYZSZE]]["Liczba"]),
+                                  int(self.get_general_data_men().iloc[[WYZSZE]]["Liczba"]))],
+                                columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
+
     def get_general_data_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return self.get_general_data()
 
         elif arg.__eq__('Ogółem'):
             return pd.DataFrame([("Ogółem", 32679614)],
-                                        columns=['Wykształcenie', 'Liczba'])
+                                columns=['Wykształcenie', 'Liczba'])
 
         elif arg.__eq__('Podstawowe'):
             return self.get_general_data().iloc[[PODSTAWOWE]]
