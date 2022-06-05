@@ -1,5 +1,7 @@
 from tkinter import ttk
 from tkinter import *
+
+import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
 
@@ -8,12 +10,10 @@ DEPENDENCY = 'Ogółem'
 
 
 # TODO sortowanie 4
-# TODO grafy 2
 # TODO pasek stanu 5
 # TODO menu 6
 # TODO zapisywanie logów 7
 # TODO zapisywanie preferowanego położenia okna 8
-# TODO grafy z podziałem na płeć 3
 # TODO ładne gui 9
 
 
@@ -38,6 +38,7 @@ class Gui(Tk):
         self.chosen_education = None
         self.combo_dep = None
         self.combo_edu = None
+        self.combo_sort = None
         self.geometry("900x500")
         self.upper_frame = LabelFrame(self, height=250, width=900)
         self.upper_frame.pack(fill=BOTH, expand=YES, side=TOP)
@@ -73,22 +74,23 @@ class Gui(Tk):
         temp.append('Wszystkie', )
         self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp)
         self.combo_edu.set("Pick an education")
-        self.combo_edu.pack(fill=X)
+        self.combo_edu.pack(fill=X, side=TOP)
 
         self.combo_dep = ttk.Combobox(self.up_left_frame, values=('Wiek', 'Ogółem'))
         self.combo_dep.set("Pick a dependency")
-        self.combo_dep.pack(fill=X)
+        self.combo_dep.pack(fill=X, side=TOP)
 
         self.Var = IntVar()
 
         self.check_button = Checkbutton(self.up_left_frame, text="Z podziałem na płeć", variable=self.Var)
-        self.check_button.pack(fill=X)
+        self.check_button.pack(fill=X, side=TOP)
 
         button = Button(self.up_left_frame, text="Submit", command=self.retrieve)
-        button.pack(fill=X)
+        button.pack(fill=X, side=TOP)
 
     def get_data_to_display(self):
         self.picture_frame.destroy()
+
         if self.chosen_dependency is None and self.chosen_education is None:
             self.view_data(None)
 
@@ -114,14 +116,27 @@ class Gui(Tk):
 
     # require pandas dataframe
     def view_data(self, dataframe):
+        def sort():
+            sort_temp = combo_sort.get()
+            self.view_data(pd.DataFrame(self.local_data,  self.local_labels).sort_values(str(sort_temp)))
+
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
         else:
             self.local_labels = self.labels
             self.local_data = self.data
+
         self.tree.destroy()
         self.scrollbar.destroy()
+
+        combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels)
+        combo_sort.set("Pick sorting")
+        combo_sort.pack(fill=X, anchor=CENTER)
+
+        button = Button(self.up_left_frame, text="Submit", command=sort)
+        button.pack(fill=X, anchor=CENTER)
+
         self.tree = ttk.Treeview(self.bottom_frame, columns=self.local_labels, show='headings', selectmode='browse')
         self.scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=self.tree.yview)
         self.scrollbar.pack(side='right', fill='y')

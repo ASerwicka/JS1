@@ -17,6 +17,8 @@ PODSTAWOWE = 5
 # labels = data.columns.tolist()
 
 
+
+
 def format_number(data_value, indx):
     if data_value >= 1000000:
         formatter = '{:1.1f}M'.format(data_value * 0.000001)
@@ -44,8 +46,8 @@ class Data:
         for label in self.data_labels:
             self.data[label] = self.data[label].astype(int)
         self.age_data = self.data.iloc[1:71]
-        self.age_data_men = self.data.iloc[73:143]
-        self.age_data_women = self.data.iloc[145:215]
+        self.age_data_men = self.data.iloc[72:142]
+        self.age_data_women = self.data.iloc[143:213]
 
     def get_labels(self):
         return self.labels
