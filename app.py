@@ -1,23 +1,31 @@
-from tkinter import ttk
+import datetime
+import time
+from tkinter import ttk, simpledialog, messagebox
 from tkinter import *
 
 import pandas as pd
+import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
 
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
 
-# TODO pasek stanu 5
+
 # TODO menu 6
 # TODO zapisywanie logów 7
 # TODO zapisywanie preferowanego położenia okna 8
 # TODO ładne gui 9
 # TODO dokumentacja 10
 
+
 class Gui(Tk):
     def __init__(self):
         super().__init__()
+        self.file_logs = open("logs.txt", "a", encoding="utf-8")
+        self.menubar = None
+        self.filemenu = None
+        self.statusbar = tk.Label()
         self.button = Button()
         self.canvas = FigureCanvasTkAgg()
         self.picture_frame = LabelFrame()
@@ -58,6 +66,11 @@ class Gui(Tk):
         button = Button(self.up_left_frame, text="Reset", command=self.reset_action)
         button.pack(fill=X, side=BOTTOM)
 
+        self.get_data_to_display()
+        self.create_options()
+        self.create_status()
+        self.create_menu()
+
     def reset_action(self):
         self.view_data(None)
         self.picture_frame.destroy()
@@ -67,6 +80,42 @@ class Gui(Tk):
         self.chosen_dependency = self.combo_dep.get()
         self.sex = self.Var.get()
         self.get_data_to_display()
+
+    def save_data(self):
+        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
+        df = pd.DataFrame(self.local_data, columns=self.local_labels)
+        df.to_csv(file+'.csv', index=False)
+
+    def choose_file_to_logs(self):
+        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
+        self.file_logs = file + '.txt'
+
+    def write_logs(self, df):
+        self.file_logs.write(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '\n')
+        if self.chosen_dependency is not None and self.chosen_education is not None:
+            self.file_logs.write(str(self.chosen_education) + ", " + str(self.chosen_dependency) + ", podział na płeć: "
+                                 + str(self.sex) + '\n')
+            self.file_logs.write(pd.DataFrame(df).to_string() + '\n')
+
+    def create_menu(self):
+        self.menubar = Menu(self)
+        self.filemenu = Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Save selected data to file", command=self.save_data)
+        self.filemenu.add_command(label="Choose file to save logs to...", command=self.choose_file_to_logs)
+
+        self.filemenu.add_separator()
+
+        self.filemenu.add_command(label="Exit", command=self.quit)
+        self.menubar.add_cascade(label="Options", menu=self.filemenu)
+
+        self.config(menu=self.menubar)
+
+    def create_status(self):
+        self.statusbar = tk.Label(self.bottom_frame, text="Gotów...", anchor=W)
+        self.statusbar.pack(fill=X, side=BOTTOM)
+
+    def set_status(self, txt):
+        self.statusbar["text"] = txt
 
     def create_options(self):
         temp = self.labels[1:]
@@ -86,8 +135,6 @@ class Gui(Tk):
 
         button = Button(self.up_left_frame, text="Submit", command=self.retrieve)
         button.pack(fill=X, side=TOP)
-        
-
 
     def get_data_to_display(self):
         self.picture_frame.destroy()
@@ -117,10 +164,15 @@ class Gui(Tk):
 
     def sort(self):
         sort_temp = self.combo_sort.get()
-        self.view_data(pd.DataFrame(self.local_data, columns=self.local_labels).sort_values(str(sort_temp)))
+        try:
+            self.view_data(pd.DataFrame(self.local_data, columns=self.local_labels).sort_values(str(sort_temp)))
+        except:
+            messagebox.showinfo(title=None, message="Proszę wybrać tryb sortowania")
 
     # require pandas dataframe
     def view_data(self, dataframe):
+        self.set_status("Wykonano.")
+
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
@@ -157,15 +209,20 @@ class Gui(Tk):
         for line in self.local_data:
             self.tree.insert('', 'end', values=line)
 
-        self.tree.pack(expand=True, fill=BOTH)
+        self.tree.pack(expand=True, fill=BOTH, side=TOP)
+
+        if dataframe is None:
+            self.write_logs(pd.DataFrame(self.local_data, columns=self.local_labels))
+        else:
+            self.write_logs(dataframe)
 
     def view_graph(self, figure):
         self.picture_frame = LabelFrame(self.up_right_frame, height=250, width=250)
         self.picture_frame.pack(side=TOP)
 
         # TODO check if it possible to change size of one frame despite other frames
-        #sizegrip = ttk.Sizegrip(self.picture_frame)
-        #sizegrip.pack(side="right", anchor=SW)
+        # sizegrip = ttk.Sizegrip(self.picture_frame)
+        # sizegrip.pack(side="right", anchor=SW)
 
         self.canvas = FigureCanvasTkAgg(figure, self.picture_frame)
         self.canvas.draw()
@@ -174,6 +231,4 @@ class Gui(Tk):
 
 if __name__ == '__main__':
     app = Gui()
-    app.get_data_to_display()
-    app.create_options()
     app.mainloop()
