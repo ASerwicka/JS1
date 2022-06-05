@@ -8,18 +8,17 @@ import data
 EDUCATION = 'Wszystkie'
 DEPENDENCY = 'Ogółem'
 
-
-# TODO sortowanie 4
 # TODO pasek stanu 5
 # TODO menu 6
 # TODO zapisywanie logów 7
 # TODO zapisywanie preferowanego położenia okna 8
 # TODO ładne gui 9
-
+# TODO dokumentacja 10
 
 class Gui(Tk):
     def __init__(self):
         super().__init__()
+        self.button = Button()
         self.canvas = FigureCanvasTkAgg()
         self.picture_frame = LabelFrame()
         self.Var = None
@@ -38,7 +37,7 @@ class Gui(Tk):
         self.chosen_education = None
         self.combo_dep = None
         self.combo_edu = None
-        self.combo_sort = None
+        self.combo_sort = ttk.Combobox()
         self.geometry("900x500")
         self.upper_frame = LabelFrame(self, height=250, width=900)
         self.upper_frame.pack(fill=BOTH, expand=YES, side=TOP)
@@ -87,6 +86,8 @@ class Gui(Tk):
 
         button = Button(self.up_left_frame, text="Submit", command=self.retrieve)
         button.pack(fill=X, side=TOP)
+        
+
 
     def get_data_to_display(self):
         self.picture_frame.destroy()
@@ -114,12 +115,12 @@ class Gui(Tk):
                 if self.Data.get_age_sex_diagram_arg(self.chosen_education) is not None:
                     self.view_graph(self.Data.get_age_sex_diagram_arg(self.chosen_education))
 
+    def sort(self):
+        sort_temp = self.combo_sort.get()
+        self.view_data(pd.DataFrame(self.local_data, columns=self.local_labels).sort_values(str(sort_temp)))
+
     # require pandas dataframe
     def view_data(self, dataframe):
-        def sort():
-            sort_temp = combo_sort.get()
-            self.view_data(pd.DataFrame(self.local_data,  self.local_labels).sort_values(str(sort_temp)))
-
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
@@ -129,13 +130,15 @@ class Gui(Tk):
 
         self.tree.destroy()
         self.scrollbar.destroy()
+        self.combo_sort.destroy()
+        self.button.destroy()
 
-        combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels)
-        combo_sort.set("Pick sorting")
-        combo_sort.pack(fill=X, anchor=CENTER)
+        self.button = Button(self.up_left_frame, text="Submit", command=self.sort)
+        self.button.pack(fill=X, side=BOTTOM)
 
-        button = Button(self.up_left_frame, text="Submit", command=sort)
-        button.pack(fill=X, anchor=CENTER)
+        self.combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels)
+        self.combo_sort.set("Pick sorting")
+        self.combo_sort.pack(fill=X, side=BOTTOM)
 
         self.tree = ttk.Treeview(self.bottom_frame, columns=self.local_labels, show='headings', selectmode='browse')
         self.scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=self.tree.yview)

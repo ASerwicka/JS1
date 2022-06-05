@@ -35,7 +35,15 @@ class Data:
         self.labels = self.labels.split(';')
         temp_file = []
         for line in self.file:
-            temp_file.append(line.split(';'))
+            newline = []
+            line = line.split(';')
+            for sth in line:
+                try:
+                    sth = int(sth)
+                    newline.append(sth)
+                except:
+                    newline.append(sth)
+            temp_file.append(newline)
         self.file = temp_file
 
         # for calculating
@@ -143,7 +151,7 @@ class Data:
         return general_data_as_table
 
     def get_general_data_men(self):
-        general_data_men = self.data.iloc[[72]]
+        general_data_men = self.data.iloc[[71]]
         del general_data_men[general_data_men.columns[0]]
         del general_data_men[general_data_men.columns[0]]
         general_data_men_as_table = pd.DataFrame(list(zip(general_data_men.columns, general_data_men.values[0])),
@@ -151,7 +159,7 @@ class Data:
         return general_data_men_as_table
 
     def get_general_data_women(self):
-        general_data_women = self.data.iloc[[144]]
+        general_data_women = self.data.iloc[[142]]
         del general_data_women[general_data_women.columns[0]]
         del general_data_women[general_data_women.columns[0]]
         general_data_women_as_table = pd.DataFrame(list(zip(general_data_women.columns, general_data_women.values[0])),
@@ -352,7 +360,7 @@ class Data:
         return fig
 
     def general_sex_diagram(self):
-        values = [int(self.data.iloc[[72]]["Ogółem"]), int(self.data.iloc[[144]]["Ogółem"])]
+        values = [int(self.data.iloc[[71]]["Ogółem"]), int(self.data.iloc[[142]]["Ogółem"])]
 
         fig, ax = plt.subplots(figsize=(13, 6))
 
