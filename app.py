@@ -1,5 +1,4 @@
 import datetime
-import time
 from tkinter import ttk, simpledialog, messagebox
 from tkinter import *
 
@@ -13,15 +12,24 @@ DEPENDENCY = 'Ogółem'
 
 
 # TODO menu 6
-# TODO zapisywanie logów 7
-# TODO zapisywanie preferowanego położenia okna 8
 # TODO ładne gui 9
 # TODO dokumentacja 10
 
 
-class Gui(Tk):
+class Gui:
+
     def __init__(self):
-        super().__init__()
+        self.root = Tk()
+        try:
+            config_tmp = open('config.txt')
+            config_tmp = config_tmp.readline().split(", ")
+            x = int(config_tmp[0])
+            y = int(config_tmp[1])
+        except:
+            y = 0
+            x = 0
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.file_logs = open("logs.txt", "a", encoding="utf-8")
         self.menubar = None
         self.filemenu = None
@@ -46,8 +54,8 @@ class Gui(Tk):
         self.combo_dep = None
         self.combo_edu = None
         self.combo_sort = ttk.Combobox()
-        self.geometry("900x500")
-        self.upper_frame = LabelFrame(self, height=250, width=900)
+        self.root.geometry("900x500+%d+%d" % (x, y))
+        self.upper_frame = LabelFrame(self.root, height=250, width=900)
         self.upper_frame.pack(fill=BOTH, expand=YES, side=TOP)
         self.upper_frame.pack_propagate(False)
 
@@ -59,7 +67,7 @@ class Gui(Tk):
         self.up_right_frame.pack(fill=BOTH, expand=YES, side=RIGHT)
         self.up_right_frame.pack_propagate(False)
 
-        self.bottom_frame = LabelFrame(self, height=100, width=900)
+        self.bottom_frame = LabelFrame(self.root, height=100, width=900)
         self.bottom_frame.pack(fill=BOTH, expand=YES, side=BOTTOM)
         self.bottom_frame.pack_propagate(False)
 
@@ -70,6 +78,13 @@ class Gui(Tk):
         self.create_options()
         self.create_status()
         self.create_menu()
+
+    def on_close(self):
+        with open('config.txt', 'w') as configfile:
+            configfile.write(str(self.root.winfo_rootx()) + ", " + str(self.root.winfo_rooty()))
+        self.root.destroy()
+        print("L")
+        quit()
 
     def reset_action(self):
         self.view_data(None)
@@ -84,7 +99,7 @@ class Gui(Tk):
     def save_data(self):
         file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
         df = pd.DataFrame(self.local_data, columns=self.local_labels)
-        df.to_csv(file+'.csv', index=False)
+        df.to_csv(file + '.csv', index=False)
 
     def choose_file_to_logs(self):
         file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
@@ -98,17 +113,17 @@ class Gui(Tk):
             self.file_logs.write(pd.DataFrame(df).to_string() + '\n')
 
     def create_menu(self):
-        self.menubar = Menu(self)
+        self.menubar = Menu(self.root)
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Save selected data to file", command=self.save_data)
         self.filemenu.add_command(label="Choose file to save logs to...", command=self.choose_file_to_logs)
 
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Exit", command=self.quit)
+        self.filemenu.add_command(label="Exit", command=self.root.quit)
         self.menubar.add_cascade(label="Options", menu=self.filemenu)
 
-        self.config(menu=self.menubar)
+        self.root['menu'] = self.menubar
 
     def create_status(self):
         self.statusbar = tk.Label(self.bottom_frame, text="Gotów...", anchor=W)
@@ -231,4 +246,4 @@ class Gui(Tk):
 
 if __name__ == '__main__':
     app = Gui()
-    app.mainloop()
+    app.root.mainloop()
