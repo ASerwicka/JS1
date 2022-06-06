@@ -12,7 +12,6 @@ DEPENDENCY = 'Ogółem'
 
 
 # TODO menu 6
-# TODO ładne gui 9
 # TODO dokumentacja 10
 
 
@@ -55,24 +54,25 @@ class Gui:
         self.combo_edu = None
         self.combo_sort = ttk.Combobox()
         self.root.geometry("900x500+%d+%d" % (x, y))
-        self.upper_frame = LabelFrame(self.root, height=250, width=900)
+        self.upper_frame = LabelFrame(self.root, height=250, width=900, background='#2E2E2E', relief=FLAT)
         self.upper_frame.pack(fill=BOTH, expand=YES, side=TOP)
         self.upper_frame.pack_propagate(False)
 
-        self.up_left_frame = LabelFrame(self.upper_frame, height=400, width=250)
+        self.up_left_frame = LabelFrame(self.upper_frame, height=400, width=250, background='#2E2E2E', relief=FLAT)
         self.up_left_frame.pack(fill=BOTH, side=LEFT)
         self.up_left_frame.pack_propagate(False)
 
-        self.up_right_frame = LabelFrame(self.upper_frame, height=400, width=650)
+        self.up_right_frame = LabelFrame(self.upper_frame, height=400, width=650, background='white', relief=FLAT)
         self.up_right_frame.pack(fill=BOTH, expand=YES, side=RIGHT)
         self.up_right_frame.pack_propagate(False)
 
-        self.bottom_frame = LabelFrame(self.root, height=100, width=900)
+        self.bottom_frame = LabelFrame(self.root, height=100, width=900, background='#2E2E2E', relief=FLAT)
         self.bottom_frame.pack(fill=BOTH, expand=YES, side=BOTTOM)
         self.bottom_frame.pack_propagate(False)
 
-        button = Button(self.up_left_frame, text="Reset", command=self.reset_action)
-        button.pack(fill=X, side=BOTTOM)
+        button = Button(self.up_left_frame, text="Reset", command=self.reset_action, background='#585858',
+                        activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6", height=2)
+        button.pack(fill=X, side=BOTTOM, pady=5)
 
         self.get_data_to_display()
         self.create_options()
@@ -114,14 +114,14 @@ class Gui:
 
     def create_menu(self):
         self.menubar = Menu(self.root)
-        self.filemenu = Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="Save selected data to file", command=self.save_data)
-        self.filemenu.add_command(label="Choose file to save logs to...", command=self.choose_file_to_logs)
+        self.filemenu = Menu(self.menubar, tearoff=0, background="#848484", relief=FLAT, activebackground="#848484")
+        self.filemenu.add_command(label="Zapisz dane do pliku", command=self.save_data)
+        self.filemenu.add_command(label="Wybierz plik do którego zapisywać logi...", command=self.choose_file_to_logs)
 
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Exit", command=self.root.quit)
-        self.menubar.add_cascade(label="Options", menu=self.filemenu)
+        self.filemenu.add_command(label="Wyjście", command=self.root.quit)
+        self.menubar.add_cascade(label="Opcje", menu=self.filemenu)
 
         self.root['menu'] = self.menubar
 
@@ -135,21 +135,35 @@ class Gui:
     def create_options(self):
         temp = self.labels[1:]
         temp.append('Wszystkie', )
-        self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp)
-        self.combo_edu.set("Pick an education")
-        self.combo_edu.pack(fill=X, side=TOP)
 
-        self.combo_dep = ttk.Combobox(self.up_left_frame, values=('Wiek', 'Ogółem'))
-        self.combo_dep.set("Pick a dependency")
-        self.combo_dep.pack(fill=X, side=TOP)
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('TCombobox',
+                        background="#585858",
+                        fieldbackground="#585858",
+                        foreground="#E6E6E6",
+                        darkcolor="#585858",
+                        selectbackground="#585858",
+                        lightcolor="#585858"
+                        )
+        self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp, foreground="#E6E6E6",)
+        self.combo_edu.set("Wybierz edukacje")
+        self.combo_edu.pack(fill=X, side=TOP, pady=10)
+
+        self.combo_dep = ttk.Combobox(self.up_left_frame, values=('Wiek', 'Ogółem'), foreground="#E6E6E6")
+        self.combo_dep.set("Wybierz zależność")
+        self.combo_dep.pack(fill=X, side=TOP, pady=10)
 
         self.Var = IntVar()
 
-        self.check_button = Checkbutton(self.up_left_frame, text="Z podziałem na płeć", variable=self.Var)
-        self.check_button.pack(fill=X, side=TOP)
+        self.check_button = Checkbutton(self.up_left_frame, text="Z podziałem na płeć", variable=self.Var,
+                                        background="#2E2E2E", activebackground="#2E2E2E", activeforeground="#E6E6E6",
+                                        fg="#E6E6E6", selectcolor="#585858")
+        self.check_button.pack(fill=X, side=TOP, pady=5)
 
-        button = Button(self.up_left_frame, text="Submit", command=self.retrieve)
-        button.pack(fill=X, side=TOP)
+        button = Button(self.up_left_frame, text="Zatwierdź", command=self.retrieve, background='#585858',
+                        activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6")
+        button.pack(fill=X, side=TOP, pady=5)
 
     def get_data_to_display(self):
         self.picture_frame.destroy()
@@ -200,12 +214,18 @@ class Gui:
         self.combo_sort.destroy()
         self.button.destroy()
 
-        self.button = Button(self.up_left_frame, text="Submit", command=self.sort)
-        self.button.pack(fill=X, side=BOTTOM)
+        self.button = Button(self.up_left_frame, text="Zatwierdź", command=self.sort, background='#585858',
+                        activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6")
+        self.button.pack(fill=X, side=BOTTOM, pady=5)
 
-        self.combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels)
-        self.combo_sort.set("Pick sorting")
-        self.combo_sort.pack(fill=X, side=BOTTOM)
+        self.combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels, background='#585858')
+        self.combo_sort.set("Wybierz sortowanie")
+        self.combo_sort.pack(fill=X, side=BOTTOM, pady=5)
+
+        style = ttk.Style(self.root)
+        style.theme_use("clam")
+        style.configure("Treeview", background="#A4A4A4",
+                        fieldbackground="#A4A4A4", foreground="#151515")
 
         self.tree = ttk.Treeview(self.bottom_frame, columns=self.local_labels, show='headings', selectmode='browse')
         self.scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=self.tree.yview)
