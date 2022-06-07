@@ -7,18 +7,11 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import data
 
-EDUCATION = 'Wszystkie'
-DEPENDENCY = 'Ogółem'
-
-
-# TODO menu 6
-# TODO dokumentacja 10
-
 
 class Gui:
-
     def __init__(self):
         self.root = Tk()
+        # odczytanie pliku z danymi o poprzednim położeniu okna
         try:
             config_tmp = open('config.txt')
             config_tmp = config_tmp.readline().split(", ")
@@ -28,32 +21,42 @@ class Gui:
             y = 0
             x = 0
 
+        # wywołanie zapisania danych o położeniu okna po kliknięciu przycisku wyjścia
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        # otwarcie pliku z logami
         self.file_logs = open("logs.txt", "a", encoding="utf-8")
-        self.menubar = None
-        self.filemenu = None
+
+        self.scrollbar = ttk.Scrollbar()
+        self.tree = ttk.Treeview()
+        self.Data = data.Data()
         self.statusbar = tk.Label()
         self.button = Button()
         self.canvas = FigureCanvasTkAgg()
         self.picture_frame = LabelFrame()
+        self.combo_sort = ttk.Combobox()
+        self.menubar = None
+        self.filemenu = None
         self.Var = None
         self.check_button = None
-        self.sex = 0
-        self.scrollbar = ttk.Scrollbar()
-        self.tree = ttk.Treeview()
-        self.Data = data.Data()
-        # data from csv file
-        self.data = self.Data.get_file()
-        self.local_data = self.data
-        # labels from csv file
-        self.labels = self.Data.get_labels()
-        self.local_labels = self.labels
         self.chosen_dependency = None
         self.chosen_education = None
         self.combo_dep = None
         self.combo_edu = None
-        self.combo_sort = ttk.Combobox()
+        self.sex = 0
+
+        # dane z odczytanego pliku z klasy Data
+        self.data = self.Data.get_file()
+        # dane na których będzie pracować funkcja wyświetlająca dane
+        self.local_data = self.data
+        # labele z odczytanego pliku z klasy Data
+        self.labels = self.Data.get_labels()
+        # labele na których pracować będzie funkcja wyświetlająca dane
+        self.local_labels = self.labels
+
+        # ustawienie położenia okna
         self.root.geometry("900x500+%d+%d" % (x, y))
+
+        # tworzenie frame'ów
         self.upper_frame = LabelFrame(self.root, height=250, width=900, background='#2E2E2E', relief=FLAT)
         self.upper_frame.pack(fill=BOTH, expand=YES, side=TOP)
         self.upper_frame.pack_propagate(False)
@@ -70,6 +73,7 @@ class Gui:
         self.bottom_frame.pack(fill=BOTH, expand=YES, side=BOTTOM)
         self.bottom_frame.pack_propagate(False)
 
+        # przycisk do przywrócenia początkowych danych w oknie z danymi (dane bezpośrednio z pliku)
         button = Button(self.up_left_frame, text="Reset", command=self.reset_action, background='#585858',
                         activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6", height=2)
         button.pack(fill=X, side=BOTTOM, pady=5)
@@ -79,6 +83,7 @@ class Gui:
         self.create_status()
         self.create_menu()
 
+    # funkcja zapisująca położenie okna
     def on_close(self):
         with open('config.txt', 'w') as configfile:
             configfile.write(str(self.root.winfo_rootx()) + ", " + str(self.root.winfo_rooty()))
@@ -86,25 +91,30 @@ class Gui:
         print("L")
         quit()
 
+    # funkcja wywołująca przywrówenie początkowych danych w oknie z danymi
     def reset_action(self):
         self.view_data(None)
         self.picture_frame.destroy()
 
+    # funkcja która dane nam info o wybranych przez użytkownika wartościach
     def retrieve(self):
         self.chosen_education = self.combo_edu.get()
         self.chosen_dependency = self.combo_dep.get()
         self.sex = self.Var.get()
         self.get_data_to_display()
 
+    # funkcja która zapisuje aktualnie wyświetlone dane do podanego pliku
     def save_data(self):
         file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
         df = pd.DataFrame(self.local_data, columns=self.local_labels)
         df.to_csv(file + '.csv', index=False)
 
+    # funkcja która podmienia plik do zapisu logów na podany przez użytkownika
     def choose_file_to_logs(self):
         file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
         self.file_logs = file + '.txt'
 
+    # funkcja zapisująca logi do pliku
     def write_logs(self, df):
         self.file_logs.write(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + '\n')
         if self.chosen_dependency is not None and self.chosen_education is not None:
@@ -112,6 +122,7 @@ class Gui:
                                  + str(self.sex) + '\n')
             self.file_logs.write(pd.DataFrame(df).to_string() + '\n')
 
+    # funkcja tworząca menu
     def create_menu(self):
         self.menubar = Menu(self.root)
         self.filemenu = Menu(self.menubar, tearoff=0, background="#848484", relief=FLAT, activebackground="#848484")
@@ -125,13 +136,16 @@ class Gui:
 
         self.root['menu'] = self.menubar
 
+    # funkcja tworząca status bar
     def create_status(self):
         self.statusbar = tk.Label(self.bottom_frame, text="Gotów...", anchor=W)
         self.statusbar.pack(fill=X, side=BOTTOM)
 
+    # funkcja ustawiająca status bar
     def set_status(self, txt):
         self.statusbar["text"] = txt
 
+    # funkcja tworząca opcje wyboru dla użytkownika
     def create_options(self):
         temp = self.labels[1:]
         temp.append('Wszystkie', )
@@ -146,7 +160,7 @@ class Gui:
                         selectbackground="#585858",
                         lightcolor="#585858"
                         )
-        self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp, foreground="#E6E6E6",)
+        self.combo_edu = ttk.Combobox(self.up_left_frame, values=temp, foreground="#E6E6E6", )
         self.combo_edu.set("Wybierz edukacje")
         self.combo_edu.pack(fill=X, side=TOP, pady=10)
 
@@ -165,6 +179,7 @@ class Gui:
                         activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6")
         button.pack(fill=X, side=TOP, pady=5)
 
+    # funkcja która pobiera dane z klasy Data na podstawie wyboru użytkownika i przesyła je dalej do wyświetlenia
     def get_data_to_display(self):
         self.picture_frame.destroy()
 
@@ -191,6 +206,7 @@ class Gui:
                 if self.Data.get_age_sex_diagram_arg(self.chosen_education) is not None:
                     self.view_graph(self.Data.get_age_sex_diagram_arg(self.chosen_education))
 
+    # funkcja sortująca wyświetlone dane
     def sort(self):
         sort_temp = self.combo_sort.get()
         try:
@@ -198,10 +214,11 @@ class Gui:
         except:
             messagebox.showinfo(title=None, message="Proszę wybrać tryb sortowania")
 
-    # require pandas dataframe
+    # funkcja wyświetlająca dane w oknie, przyjmuje DataFrame w argumencie
     def view_data(self, dataframe):
         self.set_status("Wykonano.")
 
+        # jeśli do funkcji nie został podany DataFrame to funkcja przyjmuje defaultowe dane
         if dataframe is not None:
             self.local_labels = dataframe.columns.tolist()
             self.local_data = dataframe.values.tolist()
@@ -209,19 +226,22 @@ class Gui:
             self.local_labels = self.labels
             self.local_data = self.data
 
+        # zniszczenie poprzednich danych
         self.tree.destroy()
         self.scrollbar.destroy()
         self.combo_sort.destroy()
         self.button.destroy()
 
+        # stworzenie pola wyboru oraz przycisku zatwierdzenia do sortowania danych
         self.button = Button(self.up_left_frame, text="Zatwierdź", command=self.sort, background='#585858',
-                        activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6")
+                             activebackground='#2E2E2E', activeforeground="#E6E6E6", bd=0, fg="#E6E6E6")
         self.button.pack(fill=X, side=BOTTOM, pady=5)
 
         self.combo_sort = ttk.Combobox(self.up_left_frame, values=self.local_labels, background='#585858')
         self.combo_sort.set("Wybierz sortowanie")
         self.combo_sort.pack(fill=X, side=BOTTOM, pady=5)
 
+        # stworzenie pola do wyświetlenia danych
         style = ttk.Style(self.root)
         style.theme_use("clam")
         style.configure("Treeview", background="#A4A4A4",
@@ -232,6 +252,7 @@ class Gui:
         self.scrollbar.pack(side='right', fill='y')
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
+        # stworzenie kolumn
         count = 0
         for label in self.local_labels:
             if label.__eq__("Zasadnicze zawodowe"):
@@ -241,23 +262,22 @@ class Gui:
             self.tree.heading(count, text=label)
             count = count + 1
 
+        # dodanie danych
         for line in self.local_data:
             self.tree.insert('', 'end', values=line)
 
         self.tree.pack(expand=True, fill=BOTH, side=TOP)
 
+        # zapisanie wyświetlonych danych do logów
         if dataframe is None:
             self.write_logs(pd.DataFrame(self.local_data, columns=self.local_labels))
         else:
             self.write_logs(dataframe)
 
+    # funkcja wyświetlająca graf, dostaje w argumencie figure
     def view_graph(self, figure):
         self.picture_frame = LabelFrame(self.up_right_frame, height=250, width=250)
         self.picture_frame.pack(side=TOP)
-
-        # TODO check if it possible to change size of one frame despite other frames
-        # sizegrip = ttk.Sizegrip(self.picture_frame)
-        # sizegrip.pack(side="right", anchor=SW)
 
         self.canvas = FigureCanvasTkAgg(figure, self.picture_frame)
         self.canvas.draw()

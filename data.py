@@ -11,14 +11,7 @@ GIMNAZJALNE = 4
 PODSTAWOWE = 5
 
 
-# data = pd.read_csv('Dane_2011_ogólne.csv', sep=';')
-# del data['Policealne']
-# labels
-# labels = data.columns.tolist()
-
-
-
-
+# funkcja formatująca wartości na Y osi wykresów
 def format_number(data_value, indx):
     if data_value >= 1000000:
         formatter = '{:1.1f}M'.format(data_value * 0.000001)
@@ -29,7 +22,7 @@ def format_number(data_value, indx):
 
 class Data:
     def __init__(self):
-        # for displaying
+        # pobranie danych w formacie do wyświetlania w klasie Gui
         self.file = open("Dane_2011_ogólne.csv", encoding='utf8')
         self.labels = self.file.readline().replace('\n', '')
         self.labels = self.labels.split(';')
@@ -46,7 +39,7 @@ class Data:
             temp_file.append(newline)
         self.file = temp_file
 
-        # for calculating
+        # pobranie danych w formacie do obrabiania w klasie Data
         self.data = pd.read_csv('Dane_2011_ogólne.csv', sep=';')
         self.data_labels = self.data.columns.tolist()
         del self.data_labels[0]
@@ -57,15 +50,19 @@ class Data:
         self.age_data_men = self.data.iloc[72:142]
         self.age_data_women = self.data.iloc[143:213]
 
+    # oddaje labels w formie do wyświetlenia całego pliku
     def get_labels(self):
         return self.labels
 
+    # oddaje wartości z całego pliku
     def get_file(self):
         return self.file
 
+    # oddaje dane ogólne według wieku (bez podziałów)
     def get_age_data(self):
         return self.age_data
 
+    # oddaje DataFrame złożony z informacji o wieku i odpowiadającej ilości osób z przekazanym do funkcji wykształceniem
     def get_age_data_arg(self, arg):
         if arg.__eq__('Ogółem'):
             return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data["Ogółem"])),
@@ -92,6 +89,8 @@ class Data:
         elif arg.__eq__('Wszystkie'):
             return self.age_data
 
+    # oddaje DataFrame złożony z informacji o wieku i odpowiadającej ilości osób z przekazanym do funkcji
+    # wykształceniem podzielonych na płeć
     def get_age_data_sex_arg(self, arg):
         if arg.__eq__('Ogółem'):
             return pd.DataFrame(list(zip(self.age_data["Wiek"], self.age_data_women["Ogółem"],
@@ -141,6 +140,8 @@ class Data:
                                          'Policealne M', 'Średnie K', 'Średnie M', 'Zawodowe K', 'Zawodowe M',
                                          'Gimnazjalne K', 'Gimnazjalne M', 'Podstawowe K', 'Podstawowe M'])
 
+    # oddaje DataFrame z informacją złożoną z wszystkich wykształceń oraz ogólnej liczbie osób które dane
+    # wykształcenie posiada
     def get_general_data(self):
         general_data = self.data.iloc[[0]]
         del general_data[general_data.columns[0]]
@@ -150,6 +151,8 @@ class Data:
                                              columns=['Wykształcenie', 'Liczba'])
         return general_data_as_table
 
+    # oddaje DataFrame z informacją złożoną z wszystkich wykształceń oraz liczbie mężczyzn które dane
+    # wykształcenie posiada
     def get_general_data_men(self):
         general_data_men = self.data.iloc[[71]]
         del general_data_men[general_data_men.columns[0]]
@@ -158,6 +161,8 @@ class Data:
                                                  columns=['Wykształcenie', 'Liczba'])
         return general_data_men_as_table
 
+    # oddaje DataFrame z informacją złożoną z wszystkich wykształceń oraz liczbie kobiet które dane
+    # wykształcenie posiada
     def get_general_data_women(self):
         general_data_women = self.data.iloc[[142]]
         del general_data_women[general_data_women.columns[0]]
@@ -166,6 +171,8 @@ class Data:
                                                    columns=['Wykształcenie', 'Liczba'])
         return general_data_women_as_table
 
+    # oddaje DataFrame złożony z informacji o ogólnej ilości osób z przekazanym do funkcji
+    # wykształceniem podzielonych na płeć
     def get_general_data_sex_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return pd.DataFrame(list(
@@ -207,6 +214,7 @@ class Data:
                                   int(self.get_general_data_men().iloc[[WYZSZE]]["Liczba"]))],
                                 columns=['Wykształcenie', 'Liczba kobiet', 'Liczba mężczyzn'])
 
+    # oddaje DataFrame złożony z informacji o ogólnej ilości osób z przekazanym do funkcji wykształceniem
     def get_general_data_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return self.get_general_data()
@@ -233,12 +241,15 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.get_general_data().iloc[[WYZSZE]]
 
+    # diagram pokazujący ogólną liczbę osób według każdego z wykształceń (w tym przypadku pokazuje się tylko
+    # wykres na którym są wszystkie wykształcenia, ponieważ nie ma sensu pokazywać na wykresie pojedyńczą wartość)
     def get_general_diagram_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return self.general_diagram()
         else:
             return None
 
+    # diagram pokazujący ogólną liczbę osób według każdego z wykształceń podzieloną na płcie
     def get_general_sex_diagram_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return self.general_sex_diagram_edu()
@@ -264,6 +275,7 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.create_sex_diagram(WYZSZE)
 
+    # diagram pokazujący liczbę osób według wieku dla wykształcenia przekazanego jako argument
     def get_age_diagram_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return self.age_general_diagram()
@@ -289,6 +301,7 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.create_age_diagram('Wyższe')
 
+    # diagram pokazujący liczbę osób według wieku dla wykształcenia przekazanego jako argument podzieloną na płcie
     def get_age_sex_diagram_arg(self, arg):
         if arg.__eq__('Wszystkie'):
             return None
@@ -314,6 +327,7 @@ class Data:
         elif arg.__eq__('Wyższe'):
             return self.create_age_sex_diagram('Wyższe')
 
+    # diagram pokazujący zestawienie wszystkich wykształceń i ogólnej ilości osób które dane wykształcenie posiada
     def general_diagram(self):
         general_data_as_table = self.get_general_data()
         values = general_data_as_table['Liczba'].to_numpy()
@@ -327,6 +341,8 @@ class Data:
         plt.show()
         return fig
 
+    # diagram pokazujący zestawienie wszystkich wykształceń i ogólnej ilości osób które dane wykształcenie posiada
+    # podzielony na płcie
     def general_sex_diagram_edu(self):
         general_data_as_table_women = self.get_general_data_women()
         general_data_as_table_men = self.get_general_data_men()
@@ -346,6 +362,7 @@ class Data:
         plt.show()
         return fig
 
+    # funkcja tworzy diagram zależności wykształcenia podanego jako argument oraz ilości osób, podzielony na płcie
     def create_sex_diagram(self, arg):
         general_data_as_table_women = self.get_general_data_women()
         general_data_as_table_men = self.get_general_data_men()
@@ -359,17 +376,18 @@ class Data:
         plt.show()
         return fig
 
+    # diagram pokazujący zestawienie ilości kobiet i mężczyzn od których pobrano dane
     def general_sex_diagram(self):
         values = [int(self.data.iloc[[71]]["Ogółem"]), int(self.data.iloc[[142]]["Ogółem"])]
 
         fig, ax = plt.subplots(figsize=(13, 6))
 
-        #TODO switch men and women
         plt.bar(["Mężczyźni", "Kobiety"], values)
         ax.yaxis.set_major_formatter(format_number)
         plt.show()
         return fig
 
+    # diagram pokazujący zależność wieku i ilości osób w danym wieku z wykształceniem podanym jako argument
     def create_age_diagram(self, arg):
         font = {'size': 6.5}
         matplotlib.rc('font', **font)
@@ -383,6 +401,7 @@ class Data:
         plt.show()
         return fig
 
+    # diagram pokazujący zestawienie wszystkich wykształceń według wieku
     def age_general_diagram(self):
         font = {'size': 6.5}
         matplotlib.rc('font', **font)
@@ -398,6 +417,8 @@ class Data:
         plt.show()
         return fig
 
+    # funkcja tworząca diagram zależności wieku od ilości osób z wykształceniem podanym jako argument
+    # podzielony na płcie
     def create_age_sex_diagram(self, arg):
         font = {'size': 6.5}
         matplotlib.rc('font', **font)
