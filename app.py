@@ -105,14 +105,29 @@ class Gui:
 
     # funkcja która zapisuje aktualnie wyświetlone dane do podanego pliku
     def save_data(self):
-        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
-        df = pd.DataFrame(self.local_data, columns=self.local_labels)
-        df.to_csv(file + '.csv', index=False)
+        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self.root)
+        if file is not None and self.input_fine(file):
+            df = pd.DataFrame(self.local_data, columns=self.local_labels)
+            df.to_csv(file + '.csv', index=False)
+        elif file is not None:
+            messagebox.showinfo(title=None, message="Niepoprawna nazwa pliku")
 
     # funkcja która podmienia plik do zapisu logów na podany przez użytkownika
     def choose_file_to_logs(self):
-        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self)
-        self.file_logs = file + '.txt'
+        file = simpledialog.askstring("Input", "Podaj nazwę pliku", parent=self.root)
+        if file is not None and self.input_fine(file):
+            self.file_logs = open(file + '.txt', "a", encoding="utf-8")
+        elif file is not None:
+            messagebox.showinfo(title=None, message="Niepoprawna nazwa pliku")
+
+    def input_fine(self, input):
+        if str(input).isspace():
+            return False
+        else:
+            for letter in input:
+                if letter == " ":
+                    return False
+        return True
 
     # funkcja zapisująca logi do pliku
     def write_logs(self, df):
